@@ -88,6 +88,23 @@ SUTs:
         starter = StarterFactory.from_name("SUT-B", config_path=config_path)
         self.assertIsInstance(starter, SystemctlStarter)
 
+    def test_from_name_uses_env_var_configuration_when_config_path_not_provided(self):
+        content = """
+SUTs:
+  SUT-B:
+    type: systemctl
+    service_name: sut-b
+    ssh:
+      username: admin
+"""
+        with tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8") as file:
+            file.write(content)
+            config_path = file.name
+
+        with patch.dict("os.environ", {"SUTMASTER_YAML": config_path}):
+            starter = StarterFactory.from_name("SUT-B")
+        self.assertIsInstance(starter, SystemctlStarter)
+
     def test_from_name_does_not_mutate_config(self):
         config = {
             "SUTs": {

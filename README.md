@@ -4,7 +4,8 @@
 
 ## Configurazione
 
-La libreria legge i SUT dal file `sut-config.yaml`:
+La libreria legge i SUT dal file `sut-config.yaml`.
+Se vuoi usare un file diverso senza passarlo esplicitamente, puoi impostare la variabile d'ambiente `SUTMASTER_YAML`.
 
 - `type`: `docker-compose` o `systemctl`
 - `ssh`: host/port/username/private_key
@@ -39,4 +40,3 @@ Esempio in `tests/example.robot` con i keyword:
 - `Start Sut`
 - `Stop Sut`
 - `Status Sut`
-
