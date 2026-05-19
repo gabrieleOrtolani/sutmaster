@@ -9,6 +9,8 @@ SUTs:
       port: 22
       username: "test_user"
       private_key: "~/.ssh/id_rsa"
+      # alternativa a private_key:
+      # password_env: "SUTMASTER_SSH_PASSWORD"
     copy_files:
       - src: "/local_directory/config.json"
         dest: "/home/birra/config.json"
@@ -26,6 +28,8 @@ SUTs:
       port: 22
       username: "admin"
       private_key: "~/.ssh/id_rsa"
+      # alternativa a private_key:
+      # password_env: "SUTMASTER_SSH_PASSWORD"
     copy_files:
       - src: "/local_directory/config.json"
         dest: "/home/birra/config.json"

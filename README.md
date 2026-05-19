@@ -8,9 +8,11 @@ La libreria legge i SUT dal file `sut-config.yaml`.
 Se vuoi usare un file diverso senza passarlo esplicitamente, puoi impostare la variabile d'ambiente `SUTMASTER_YAML`.
 
 - `type`: `docker-compose` o `systemctl`
-- `ssh`: host/port/username/private_key
+- `ssh`: host/port/username/private_key/password/password_env
 - `copy_files`: lista `src`/`dest` da copiare via SSH
 - `post_copy_commands`: comandi da eseguire dopo la copia
+
+`password_env` permette di leggere la password SSH da una variabile d'ambiente (consigliato rispetto a scriverla in chiaro).
 
 ### Chiavi Docker Compose
 

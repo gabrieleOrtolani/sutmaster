@@ -1,8 +1,10 @@
 import tempfile
 import unittest
+import subprocess
 from unittest.mock import patch
 
 from sutmaster.docker_compose_starter import DockerComposeStarter
+from sutmaster.starter_interface import StarterInterface
 from sutmaster.starter_factory import StarterFactory
 from sutmaster.systemctl_starter import SystemctlStarter
 
@@ -121,6 +123,34 @@ SUTs:
             starter = StarterFactory.from_name("SUT-B")
 
         self.assertIsInstance(starter, SystemctlStarter)
+
+
+class StarterInterfaceSshPasswordTests(unittest.TestCase):
+    def test_password_env_missing_raises_value_error(self):
+        starter = SystemctlStarter(service_name="svc", ssh={"username": "u", "password_env": "MISSING_PASSWORD_VAR"})
+        with patch.dict("os.environ", {}, clear=True):
+            with self.assertRaisesRegex(ValueError, "Environment variable not found: MISSING_PASSWORD_VAR"):
+                starter._resolve_ssh_password()
+
+    def test_ssh_base_args_include_password_auth_options(self):
+        starter = SystemctlStarter(service_name="svc", ssh={"username": "u", "password": "secret"})
+        args = starter._ssh_base_args()
+        self.assertIn("PreferredAuthentications=password", args)
+        self.assertIn("PubkeyAuthentication=no", args)
+        self.assertIn("NumberOfPasswordPrompts=1", args)
+
+    def test_execute_ssh_command_uses_askpass_when_password_env_is_set(self):
+        starter = SystemctlStarter(service_name="svc", ssh={"username": "u", "password_env": "TEST_SSH_PASSWORD"})
+        completed = subprocess.CompletedProcess(args=["ssh"], returncode=0, stdout="ok", stderr="")
+        with patch.dict("os.environ", {"TEST_SSH_PASSWORD": "secret"}, clear=True):
+            with patch("subprocess.run", return_value=completed) as mocked_run:
+                output = starter._execute_ssh_command("echo ok")
+
+        self.assertEqual(output, "ok")
+        _, kwargs = mocked_run.call_args
+        self.assertEqual(kwargs["stdin"], subprocess.DEVNULL)
+        self.assertIn("SSH_ASKPASS", kwargs["env"])
+        self.assertEqual(kwargs["env"]["SUTMASTER_SSH_PASSWORD"], "secret")
 
 
 if __name__ == "__main__":
