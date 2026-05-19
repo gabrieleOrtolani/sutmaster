@@ -1,0 +1,37 @@
+SUTs:
+  SUT-A:
+    type: docker-compose
+    description: "Sistema sotto test che utilizza Docker Compose"
+    path_to_compose: "/path/to/docker-compose.yml"
+    container_name: "SUT-A-container"
+    ssh:
+      host: "localhost"
+      port: 22
+      username: "test_user"
+      private_key: "~/.ssh/id_rsa"
+      # alternativa a private_key:
+      # password_env: "SUTMASTER_SSH_PASSWORD"
+    copy_files:
+      - src: "/local_directory/config.json"
+        dest: "/home/birra/config.json"
+    override_entrypoint: true
+    entrypoint_command: "sleep infinity"
+    post_copy_commands:
+      - "docker exec SUT-A-container python app.py"
+
+  SUT-B:
+    type: systemctl
+    description: "Sistema sotto test che utilizza Systemd"
+    service_name: "sut-b-service"
+    ssh:
+      host: "remote_host"
+      port: 22
+      username: "admin"
+      private_key: "~/.ssh/id_rsa"
+      # alternativa a private_key:
+      # password_env: "SUTMASTER_SSH_PASSWORD"
+    copy_files:
+      - src: "/local_directory/config.json"
+        dest: "/home/birra/config.json"
+    post_copy_commands:
+      - "chmod 600 /home/birra/config.json"
